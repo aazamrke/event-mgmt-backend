@@ -15,5 +15,14 @@ A Python-based event booking platform allowing users to reserve predefined time 
 3. Initialize database: `python init_db.py`
 4. Run server: `python main.py`
 
+## Admin Setup
+create user using register api by passing email as admin@admin.com
+                    OR
+                    
+To create admin users, manually update the user role in the database:
+```sql
+UPDATE users SET role = 'ADMIN' WHERE email = 'your-admin@email.com';
+```
+
 ## API Documentation
 Access interactive docs at `http://localhost:8000/docs`

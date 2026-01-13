@@ -35,7 +35,9 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
     
     hashed_password = get_password_hash(user.password)
-    db_user = User(email=user.email, hashed_password=hashed_password)
+    # Set admin role for admin@admin.com
+    role = UserRole.ADMIN if user.email == "admin@admin.com" else UserRole.USER
+    db_user = User(email=user.email, hashed_password=hashed_password, role=role)
     db.add(db_user)
     db.commit()
     
@@ -137,6 +139,11 @@ def cancel_booking(booking_id: int, current_user: User = Depends(get_current_use
 
 @app.post("/admin/slots", response_model=TimeSlotResponse)
 def create_slot(slot: TimeSlotCreate, admin_user: User = Depends(require_admin), db: Session = Depends(get_db)):
+    # Validate category exists
+    category = db.query(EventCategory).filter(EventCategory.id == slot.category_id).first()
+    if not category:
+        raise HTTPException(status_code=400, detail="Category not found")
+    
     db_slot = TimeSlot(**slot.dict())
     db.add(db_slot)
     db.commit()
